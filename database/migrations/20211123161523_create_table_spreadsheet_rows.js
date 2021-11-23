@@ -24,6 +24,7 @@ exports.up = async (knex) => {
     table.string("tweet_author_name", 255);
     table.integer("tweet_likes");
     table.integer("tweet_retweets");
+    table.dateTime("created_at");
 
     // Primary Key
     table.primary("row_number");

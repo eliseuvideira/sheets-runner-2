@@ -2,7 +2,7 @@ export interface SpreadsheetRow {
   row_number: number;
   event_date: string;
   link_url: string;
-  plataform: string;
+  plataform: "twitter";
   issues_details: string;
   issues_details_notes: string;
   likes: number | null;
@@ -17,4 +17,5 @@ export interface SpreadsheetRow {
   tweet_author_name: string;
   tweet_likes: number | null;
   tweet_retweets: number | null;
+  created_at: Date;
 }
