@@ -5,6 +5,11 @@ import { SpreadsheetRow } from "../models/SpreadsheetRow";
 import { database } from "../utils/database";
 import { sheets } from "../utils/sheets";
 
+type TwitterLike = Pick<
+  SpreadsheetRow,
+  "row_number" | "tweet_id" | "likes" | "tweet_likes"
+>;
+
 export const twitterLikes = endpoint(async (req, res) => {
   const missingLikesRows: SpreadsheetRow[] = await database
     .from("spreadsheet_rows")
@@ -12,10 +17,7 @@ export const twitterLikes = endpoint(async (req, res) => {
     .whereNull("likes")
     .orderBy("row_number", "asc");
 
-  const rows: Pick<
-    SpreadsheetRow,
-    "row_number" | "tweet_id" | "likes" | "tweet_likes"
-  >[] = [];
+  const rows: TwitterLike[] = [];
 
   for (const missingLike of missingLikesRows) {
     const likes = await twitterGetLikes(missingLike.tweet_id);

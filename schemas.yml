@@ -17,14 +17,121 @@ components:
     TwitterMention:
       type: object
       properties:
+        row_number:
+          type: integer
+          example: 2
+        event_date:
+          type: string
+          example: 11/23
+        link_url:
+          type: string
+          example: https://twitter.com/TezosCasa/status/1462912204584460292
+        plataform:
+          type: string
+          example: twitter
+        issues_details:
+          type: string
+          example: See notes
+        issues_details_notes:
+          type: string
+          example: >
+            @TezosCasa @KukaiWallet @TempleWallet @galleon_wallet @Ledger Morning! This is brilliant. Thank you so much for all your help with this. I'll now dig into this and look to get involved. Thank you for kindly sharing the info.
+        likes:
+          type: integer
+          example: 5
+        retweets:
+          type: integer
+          example: 23
+        mentions:
+          type: integer
+          example: 3
+        user:
+          type: string
+          example: Neil Queen-Jones (@neilqueenjones)
+        tweet_id:
+          type: string
+          example: "1463053563953885186"
+        tweet_content:
+          type: string
+          example: >
+            @TezosCasa @KukaiWallet @TempleWallet @galleon_wallet @Ledger Morning! This is brilliant. Thank you so much for all your help with this. I'll now dig into this and look to get involved. Thank you for kindly sharing the info.
+        tweet_created_at:
+          type: string
+          format: date-time
+          example: 2021-11-23T07:55:26.000Z
+        tweet_author_id:
+          type: string
+          example: "113975874"
+        tweet_author_username:
+          type: string
+          example: neilqueenjones
+        tweet_author_name:
+          type: string
+          example: Neil Queen-Jones
+        tweet_likes:
+          type: integer
+          example: 5
+        tweet_retweets:
+          type: integer
+          example: 23
+        created_at:
+          type: string
+          format: date-time
+          example: 2021-11-23T21:34:39.062Z
       required:
+        - row_number
+        - event_date
+        - link_url
+        - plataform
+        - issues_details
+        - issues_details_notes
+        - user
+        - tweet_id
+        - tweet_content
+        - tweet_created_at
+        - tweet_author_id
+        - tweet_author_username
+        - tweet_author_name
+        - created_at
 
     TwitterLike:
       type: object
       properties:
+        row_number:
+          type: integer
+          example: 2
+        likes:
+          type: integer
+          example: 5
+        tweet_id:
+          type: string
+          example: "1463053563953885186"
+        tweet_likes:
+          type: integer
+          example: 5
       required:
+        - row_number
+        - likes
+        - tweet_id
+        - tweet_likes
 
     TwitterRetweet:
       type: object
       properties:
+        row_number:
+          type: integer
+          example: 2
+        retweets:
+          type: integer
+          example: 23
+        tweet_id:
+          type: string
+          example: "1463053563953885186"
+        tweet_retweets:
+          type: integer
+          example: 23
       required:
+        - row_number
+        - retweets
+        - tweet_id
+        - tweet_retweets
