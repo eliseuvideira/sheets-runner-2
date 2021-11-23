@@ -9,10 +9,10 @@ export const getNextRowNumber = async (database: Knex) => {
   if (!sequence) {
     await database.from("spreadsheet_rows_sequence").insert({
       lock: "X",
-      sequence: 1,
+      sequence: 2,
     });
 
-    return 1;
+    return 2;
   }
 
   await database

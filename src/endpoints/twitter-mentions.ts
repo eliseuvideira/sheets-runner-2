@@ -1,8 +1,10 @@
 import { endpoint } from "@ev-fns/endpoint";
 import { format } from "date-fns";
 import { getNextRowNumber } from "../functions/getNextRowNumber";
+import { sheetsWriteRow } from "../functions/sheetsWriteRow";
 import { twitterGetMentions } from "../functions/twitterGetMentions";
 import { database } from "../utils/database";
+import { sheets } from "../utils/sheets";
 import { twitterUser } from "../utils/twitterUser";
 
 export const twitterMentions = endpoint(async (req, res) => {
@@ -57,6 +59,12 @@ export const twitterMentions = endpoint(async (req, res) => {
       };
 
       await database.from("spreadsheet_rows").insert(row);
+
+      await sheetsWriteRow(
+        sheets,
+        process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+        row,
+      );
     });
   }
 
