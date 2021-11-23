@@ -14,42 +14,7 @@ components:
       required:
         - message
 
-    Book:
+    TwitterMention:
       type: object
       properties:
-        bookId:
-          type: integer
-          example: 1
-        title:
-          type: string
-          example: Moby-Dick
-        author:
-          type: string
-          example: Herman Melville
       required:
-        - bookId
-        - title
-        - author
-
-    BookPostRequestBody:
-      type: object
-      properties:
-        title:
-          type: string
-          example: Moby-Dick
-        author:
-          type: string
-          example: Herman Melville
-      required:
-        - title
-        - author
-
-    BookPatchRequestBody:
-      type: object
-      properties:
-        title:
-          type: string
-          example: Moby-Dick
-        author:
-          type: string
-          example: Herman Melville
