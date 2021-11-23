@@ -3,8 +3,6 @@ import fetch from "node-fetch";
 export const twitterGetRetweets = async (tweet_id: string) => {
   const url = `https://api.twitter.com/2/tweets/${tweet_id}/retweeted_by`;
 
-  console.info(`fetching ${url} for retweets...`);
-
   const response = await fetch(
     `https://api.twitter.com/2/tweets/${tweet_id}/retweeted_by`,
     {
@@ -29,7 +27,7 @@ export const twitterGetRetweets = async (tweet_id: string) => {
     return 0;
   }
 
-  console.info(`${data.meta.result_count} retweets found`);
+  console.info(`${url} ${data.meta.result_count} retweets`);
 
   return data.meta.result_count;
 };

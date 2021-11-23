@@ -3,8 +3,6 @@ import fetch from "node-fetch";
 export const twitterGetLikes = async (tweet_id: string) => {
   const url = `https://api.twitter.com/2/tweets/${tweet_id}/liking_users`;
 
-  console.info(`fetching ${url} for likes...`);
-
   const response = await fetch(
     `https://api.twitter.com/2/tweets/${tweet_id}/liking_users`,
     {
@@ -29,7 +27,7 @@ export const twitterGetLikes = async (tweet_id: string) => {
     return 0;
   }
 
-  console.info(`${data.meta.result_count} likes found`);
+  console.info(`${url} ${data.meta.result_count} likes`);
 
   return data.meta.result_count;
 };
