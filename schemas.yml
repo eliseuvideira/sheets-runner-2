@@ -14,7 +14,7 @@ components:
       required:
         - message
 
-    TwitterMention:
+    SpreadsheetRow:
       type: object
       properties:
         row_number:
@@ -94,6 +94,15 @@ components:
         - tweet_author_name
         - created_at
 
+    SpreadsheetRowSequence:
+      type: object
+      properties:
+        sequence:
+          type: integer
+          example: 91
+      required:
+        - sequence
+
     TwitterMentionResponse:
       type: object
       properties:
@@ -103,7 +112,7 @@ components:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/TwitterMention"
+            $ref: "#/components/schemas/SpreadsheetRow"
         error:
           type: object
           properties:
