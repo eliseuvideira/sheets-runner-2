@@ -7,7 +7,7 @@ exports.up = async (knex) => {
   await knex.schema.createTable("spreadsheet_rows", (table) => {
     // Fields
     table.integer("row_number").notNullable();
-    table.dateTime("event_date").notNullable();
+    table.string("event_date", 255).notNullable();
     table.string("link_url", 600).notNullable();
     table.string("plataform", 255).notNullable();
     table.string("issues_details", 255).notNullable();
@@ -27,6 +27,9 @@ exports.up = async (knex) => {
 
     // Primary Key
     table.primary("row_number");
+
+    // Unique
+    table.unique("tweet_id");
   });
 };
 

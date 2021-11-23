@@ -5,6 +5,7 @@ export interface Tweet {
   id: string;
   text: string;
   created_at: Date;
+  author_id: string;
   author_username: string;
   author_name: string;
 }
@@ -76,6 +77,7 @@ export const twitterGetMentions = async (
       id: tweet.id,
       text: tweet.text,
       created_at: tweet.created_at,
+      author_id: user.id,
       author_username: user.username,
       author_name: user.name,
     });
