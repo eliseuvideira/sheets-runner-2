@@ -13,7 +13,7 @@ const router = Router();
  * @queryParam {date-time} start_date
  * @queryParam {date-time} end_date
  * @response 200
- * @responseContent {TwitterMention[]} 200.application/json
+ * @responseContent {TwitterMentionResponse} 200.application/json
  * @response default
  * @responseContent {Error} default.application/json
  */

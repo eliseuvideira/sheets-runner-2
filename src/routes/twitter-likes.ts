@@ -9,7 +9,7 @@ const router = Router();
  * @tag TwitterLikes
  * @security BearerAuth
  * @response 200
- * @responseContent {TwitterLike[]} 200.application/json
+ * @responseContent {TwitterLikeResponse} 200.application/json
  * @response default
  * @responseContent {Error} default.application/json
  */

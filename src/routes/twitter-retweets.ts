@@ -9,7 +9,7 @@ const router = Router();
  * @tag TwitterRetweets
  * @security BearerAuth
  * @response 200
- * @responseContent {TwitterRetweet[]} 200.application/json
+ * @responseContent {TwitterRetweetResponse} 200.application/json
  * @response default
  * @responseContent {Error} default.application/json
  */

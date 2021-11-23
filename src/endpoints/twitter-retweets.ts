@@ -19,30 +19,45 @@ export const twitterRetweets = endpoint(async (req, res) => {
 
   const rows: TwitterRetweet[] = [];
 
-  for (const missingLike of missingLikesRows) {
-    const retweets = await twitterGetRetweets(missingLike.tweet_id);
+  try {
+    for (const missingLike of missingLikesRows) {
+      const retweets = await twitterGetRetweets(missingLike.tweet_id);
 
-    await database.transaction(async (database) => {
-      await database
-        .from("spreadsheet_rows")
-        .where({ row_number: missingLike.row_number })
-        .update({ retweets, tweet_retweets: retweets });
+      await database.transaction(async (database) => {
+        await database
+          .from("spreadsheet_rows")
+          .where({ row_number: missingLike.row_number })
+          .update({ retweets, tweet_retweets: retweets });
 
-      await sheetsWriteRetweets(
-        sheets,
-        process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
-        missingLike.row_number,
+        await sheetsWriteRetweets(
+          sheets,
+          process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+          missingLike.row_number,
+          retweets,
+        );
+      });
+
+      rows.push({
+        row_number: missingLike.row_number,
+        tweet_id: missingLike.tweet_id,
         retweets,
-      );
-    });
+        tweet_retweets: retweets,
+      });
+    }
+  } catch (err: any) {
+    if (rows.length) {
+      console.error(err);
 
-    rows.push({
-      row_number: missingLike.row_number,
-      tweet_id: missingLike.tweet_id,
-      retweets,
-      tweet_retweets: retweets,
-    });
+      res.status(200).json({
+        successful: false,
+        items: rows,
+        error: { message: err.message },
+      });
+
+      return;
+    }
+    throw err;
   }
 
-  res.status(200).json(rows);
+  res.status(200).json({ successful: true, items: rows });
 });

@@ -19,60 +19,75 @@ export const twitterMentions = endpoint(async (req, res) => {
 
   const rows: SpreadsheetRow[] = [];
 
-  for (const tweet of tweets) {
-    const alreadyExists = await database
-      .from("spreadsheet_rows")
-      .where({ tweet_id: tweet.id })
-      .first();
+  try {
+    for (const tweet of tweets) {
+      const alreadyExists = await database
+        .from("spreadsheet_rows")
+        .where({ tweet_id: tweet.id })
+        .first();
 
-    if (alreadyExists) {
-      console.info(
-        `skipping tweet_id ${tweet.id}, already inserted before at row_number ${alreadyExists.row_number}`,
-      );
+      if (alreadyExists) {
+        console.info(
+          `skipping tweet_id ${tweet.id}, already inserted before at row_number ${alreadyExists.row_number}`,
+        );
 
-      continue;
+        continue;
+      }
+
+      await database.transaction(async (database) => {
+        const row_number = await getNextRowNumber(database);
+
+        console.info(
+          `inserting tweet_id ${tweet.id} at row_number ${row_number}`,
+        );
+
+        const row: SpreadsheetRow = {
+          row_number,
+          event_date: format(new Date(tweet.created_at), "M/dd"),
+          link_url: `https://twitter.com/${tweet.author_username}/status/${tweet.id}`,
+          plataform: "twitter",
+          issues_details: "See notes",
+          issues_details_notes: tweet.text,
+          likes: null,
+          retweets: null,
+          mentions: null,
+          user: `${tweet.author_name} (@${tweet.author_username})`,
+          tweet_id: tweet.id,
+          tweet_content: tweet.text,
+          tweet_created_at: tweet.created_at,
+          tweet_author_id: tweet.author_id,
+          tweet_author_username: tweet.author_username,
+          tweet_author_name: tweet.author_name,
+          tweet_likes: null,
+          tweet_retweets: null,
+          created_at: new Date(),
+        };
+
+        await database.from("spreadsheet_rows").insert(row);
+
+        await sheetsWriteRow(
+          sheets,
+          process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+          row,
+        );
+
+        rows.push(row);
+      });
     }
+  } catch (err: any) {
+    if (rows.length) {
+      console.error(err);
 
-    await database.transaction(async (database) => {
-      const row_number = await getNextRowNumber(database);
+      res.status(200).json({
+        successful: false,
+        items: rows,
+        error: { message: err.message },
+      });
 
-      console.info(
-        `inserting tweet_id ${tweet.id} at row_number ${row_number}`,
-      );
-
-      const row: SpreadsheetRow = {
-        row_number,
-        event_date: format(new Date(tweet.created_at), "M/dd"),
-        link_url: `https://twitter.com/${tweet.author_username}/status/${tweet.id}`,
-        plataform: "twitter",
-        issues_details: "See notes",
-        issues_details_notes: tweet.text,
-        likes: null,
-        retweets: null,
-        mentions: null,
-        user: `${tweet.author_name} (@${tweet.author_username})`,
-        tweet_id: tweet.id,
-        tweet_content: tweet.text,
-        tweet_created_at: tweet.created_at,
-        tweet_author_id: tweet.author_id,
-        tweet_author_username: tweet.author_username,
-        tweet_author_name: tweet.author_name,
-        tweet_likes: null,
-        tweet_retweets: null,
-        created_at: new Date(),
-      };
-
-      await database.from("spreadsheet_rows").insert(row);
-
-      await sheetsWriteRow(
-        sheets,
-        process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
-        row,
-      );
-
-      rows.push(row);
-    });
+      return;
+    }
+    throw err;
   }
 
-  res.status(200).json(rows);
+  res.status(200).json({ successful: true, items: rows });
 });

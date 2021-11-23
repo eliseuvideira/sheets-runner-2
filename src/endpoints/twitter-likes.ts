@@ -19,30 +19,45 @@ export const twitterLikes = endpoint(async (req, res) => {
 
   const rows: TwitterLike[] = [];
 
-  for (const missingLike of missingLikesRows) {
-    const likes = await twitterGetLikes(missingLike.tweet_id);
+  try {
+    for (const missingLike of missingLikesRows) {
+      const likes = await twitterGetLikes(missingLike.tweet_id);
 
-    await database.transaction(async (database) => {
-      await database
-        .from("spreadsheet_rows")
-        .where({ row_number: missingLike.row_number })
-        .update({ likes, tweet_likes: likes });
+      await database.transaction(async (database) => {
+        await database
+          .from("spreadsheet_rows")
+          .where({ row_number: missingLike.row_number })
+          .update({ likes, tweet_likes: likes });
 
-      await sheetsWriteLikes(
-        sheets,
-        process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
-        missingLike.row_number,
+        await sheetsWriteLikes(
+          sheets,
+          process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+          missingLike.row_number,
+          likes,
+        );
+      });
+
+      rows.push({
+        row_number: missingLike.row_number,
+        tweet_id: missingLike.tweet_id,
         likes,
-      );
-    });
+        tweet_likes: likes,
+      });
+    }
+  } catch (err: any) {
+    if (rows.length) {
+      console.error(err);
 
-    rows.push({
-      row_number: missingLike.row_number,
-      tweet_id: missingLike.tweet_id,
-      likes,
-      tweet_likes: likes,
-    });
+      res.status(200).json({
+        successful: false,
+        items: rows,
+        error: { message: err.message },
+      });
+
+      return;
+    }
+    throw err;
   }
 
-  res.status(200).json(rows);
+  res.status(200).json({ successful: true, items: rows });
 });

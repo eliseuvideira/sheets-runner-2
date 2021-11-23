@@ -94,6 +94,28 @@ components:
         - tweet_author_name
         - created_at
 
+    TwitterMentionResponse:
+      type: object
+      properties:
+        successful:
+          type: boolean
+          example: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TwitterMention"
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "429 - Too Many Requests"
+          required:
+            - message
+      required:
+        - successful
+        - items
+
     TwitterLike:
       type: object
       properties:
@@ -115,6 +137,28 @@ components:
         - tweet_id
         - tweet_likes
 
+    TwitterLikeResponse:
+      type: object
+      properties:
+        successful:
+          type: boolean
+          example: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TwitterLike"
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "429 - Too Many Requests"
+          required:
+            - message
+      required:
+        - successful
+        - items
+
     TwitterRetweet:
       type: object
       properties:
@@ -135,3 +179,25 @@ components:
         - retweets
         - tweet_id
         - tweet_retweets
+
+    TwitterRetweetResponse:
+      type: object
+      properties:
+        successful:
+          type: boolean
+          example: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TwitterRetweet"
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "429 - Too Many Requests"
+          required:
+            - message
+      required:
+        - successful
+        - items
