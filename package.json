@@ -36,8 +36,10 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "joi": "^17.4.2",
+    "knex": "^0.95.14",
     "moment": "^2.29.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "sqlite3": "^5.0.2"
   },
   "scripts": {
     "build": "tsc",
@@ -45,6 +47,11 @@
     "docker": "./scripts/docker.js",
     "format": "prettier --write 'src/**/*'",
     "lint": "eslint --max-warnings=0 'src/**/*'",
+    "migrate-down": "knex --knexfile ./database/knexfile.js migrate:down",
+    "migrate-latest": "knex --knexfile ./database/knexfile.js migrate:latest",
+    "migrate-make": "knex --knexfile ./database/knexfile.js migrate:make",
+    "migrate-rollback": "knex --knexfile ./database/knexfile.js migrate:rollback",
+    "migrate-up": "knex --knexfile ./database/knexfile.js migrate:up",
     "prepare": "husky install",
     "start": "node build/server.js"
   }
