@@ -91,5 +91,5 @@ export const twitterGetMentions = async (
     tweets.push(...next_tweets);
   }
 
-  return tweets;
+  return [...tweets].sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 };
