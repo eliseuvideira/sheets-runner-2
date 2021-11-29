@@ -80,8 +80,8 @@ export const twitterMentions = endpoint(async (req, res) => {
 
       res.status(200).json({
         successful: false,
-        items: rows,
         error: { message: err.message },
+        items: rows,
       });
 
       return;
