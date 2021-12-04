@@ -1,26 +1,18 @@
 import { endpoint } from "@ev-fns/endpoint";
-import { format } from "date-fns";
-import { getNextRowNumber } from "../functions/getNextRowNumber";
+import { nanoid } from "../functions/nanoid";
+import { runTwitterRows } from "../functions/runTwitterRows";
 import { sheetsWriteCount } from "../functions/sheetsWriteCount";
 import { sheetsWriteRow } from "../functions/sheetsWriteRow";
 import { twitterCountFetchMany } from "../functions/twitterCountFetchMany";
 import { twitterGetMentions } from "../functions/twitterGetMentions";
+import { Job } from "../models/Job";
 import { Row } from "../models/Row";
+import { Run } from "../models/Run";
+import { TwitterCounts } from "../models/TwitterCounts";
 import { database } from "../utils/database";
+import { jobs } from "../utils/jobs";
 import { sheets } from "../utils/sheets";
 import { twitterUser } from "../utils/twitterUser";
-
-export type TwitterCount = Pick<
-  Row,
-  | "row_number"
-  | "tweet_id"
-  | "likes"
-  | "tweet_likes"
-  | "retweets"
-  | "tweet_retweets"
-  | "replies"
-  | "tweet_replies"
->;
 
 export const twitterRows = endpoint(async (req, res) => {
   const { start_date: startDate, end_date: endDate } =
@@ -31,80 +23,9 @@ export const twitterRows = endpoint(async (req, res) => {
     endDate,
   });
 
-  const writtenRows: Row[] = [];
+  const values = await runTwitterRows(tweets);
 
-  try {
-    for (const tweet of tweets) {
-      const alreadyExists = await database
-        .from("spreadsheet_rows")
-        .where({ tweet_id: tweet.id })
-        .first();
-
-      if (alreadyExists) {
-        console.info(
-          `skipping tweet_id ${tweet.id}, already inserted before at row_number ${alreadyExists.row_number}`,
-        );
-
-        continue;
-      }
-
-      await database.transaction(async (database) => {
-        const row_number = await getNextRowNumber(database);
-
-        console.info(
-          `inserting tweet_id ${tweet.id} at row_number ${row_number}`,
-        );
-
-        const row: Row = {
-          row_number,
-          event_date: format(new Date(tweet.created_at), "M/dd"),
-          link_url: `https://twitter.com/${tweet.author_username}/status/${tweet.id}`,
-          plataform: "twitter",
-          issues_details: "See notes",
-          issues_details_notes: tweet.text,
-          likes: null,
-          retweets: null,
-          replies: null,
-          user: `${tweet.author_name} (@${tweet.author_username})`,
-          tweet_id: tweet.id,
-          tweet_content: tweet.text,
-          tweet_created_at: tweet.created_at,
-          tweet_author_id: tweet.author_id,
-          tweet_author_username: tweet.author_username,
-          tweet_author_name: tweet.author_name,
-          tweet_likes: null,
-          tweet_retweets: null,
-          tweet_replies: null,
-          created_at: new Date(),
-        };
-
-        await database.from("spreadsheet_rows").insert(row);
-
-        await sheetsWriteRow(
-          sheets,
-          process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
-          row,
-        );
-
-        writtenRows.push(row);
-      });
-    }
-  } catch (err: any) {
-    if (writtenRows.length) {
-      console.error(err);
-
-      res.status(200).json({
-        successful: false,
-        error: { message: err.message },
-        items: writtenRows,
-      });
-
-      return;
-    }
-    throw err;
-  }
-
-  res.status(200).json({ successful: true, items: writtenRows });
+  res.status(200).json(values);
 });
 
 export const twitterRowsCounts = endpoint(async (req, res) => {
@@ -124,7 +45,7 @@ export const twitterRowsCounts = endpoint(async (req, res) => {
     })
     .orderBy("row_number", "asc");
 
-  const writtenRows: TwitterCount[] = [];
+  const writtenRows: TwitterCounts[] = [];
 
   const tweets = await twitterCountFetchMany(
     rows.map((missingCount) => ({
@@ -227,4 +148,78 @@ export const twitterRowsWriteRows = endpoint(async (req, res) => {
   }
 
   res.status(200).json({ successful: true, items: writtenRows });
+});
+
+export const twitterRowsAsync = endpoint(async (req, res) => {
+  const { start_date: startDate, end_date: endDate } =
+    req.query as unknown as Record<string, Date>;
+
+  const tweets = await twitterGetMentions(twitterUser.getUserId(), {
+    startDate,
+    endDate,
+  });
+
+  const job_id = nanoid();
+
+  const job: Job = {
+    job_id,
+    route: "/async/twitter",
+    completed: false,
+    successful: false,
+    attempts: 0,
+    runs: [],
+    fatal_errors: [],
+  };
+
+  jobs.push(job);
+
+  // remove job after 2 hours
+  setTimeout(() => {
+    const index = jobs.findIndex((j) => j === job);
+
+    if (index !== -1) {
+      jobs.splice(index, 1);
+    }
+  }, 2 * 60 * 60 * 1000);
+
+  res.status(200).json(job);
+
+  while (job.attempts < 10) {
+    let run: Run;
+
+    try {
+      run = await runTwitterRows(tweets);
+    } catch (err: any) {
+      job.fatal_errors.push({ message: err.messsage });
+
+      if (job.fatal_errors.length > 10) {
+        job.completed = true;
+        throw err;
+      }
+
+      continue;
+    }
+
+    job.runs.push(run);
+
+    if (run.successful) {
+      console.info(`job ${job_id}: completed successfully`);
+
+      job.completed = true;
+      job.successful = true;
+      job.attempts += 1;
+
+      break;
+    }
+    console.info(`job ${job_id}: failed`);
+    console.info(`job ${job_id}: waiting`);
+
+    await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
+
+    console.info(`job ${job_id}: resuming`);
+
+    job.attempts += 1;
+  }
+
+  job.completed = true;
 });

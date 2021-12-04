@@ -1562,10 +1562,10 @@ googleapis-common@^5.0.2:
     url-template "^2.0.8"
     uuid "^8.0.0"
 
-googleapis@^91.0.0:
-  version "91.0.0"
-  resolved "https://registry.yarnpkg.com/googleapis/-/googleapis-91.0.0.tgz#c5e51ca568ed687f0694a082237c7b7b96a19b3b"
-  integrity sha512-iHqXZwgYam0g8n0Yyi+YHx8kgwT+H5O4k3fe0LB1JhWRp1dSKYu+ShY4PQbW584zLOE4kK3LHf2B+x1THx+ZPQ==
+googleapis@^92.0.0:
+  version "92.0.0"
+  resolved "https://registry.yarnpkg.com/googleapis/-/googleapis-92.0.0.tgz#291b9826a5a4509a9e9a6974ef942328857bfe18"
+  integrity sha512-5HgJg7XvqEEJ+GO+2gvnzd5cAcDuSS/VB6nW7thoyj2GMq9nH4VvJwncSevinjLCnv06a+VSxrXNiL5vePHojA==
   dependencies:
     google-auth-library "^7.0.2"
     googleapis-common "^5.0.2"
@@ -2185,6 +2185,11 @@ ms@^2.1.1:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
+
+nanoid@^3.1.30:
+  version "3.1.30"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.30.tgz#63f93cc548d2a113dc5dfbc63bfa09e2b9b64362"
+  integrity sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==
 
 natural-compare@^1.4.0:
   version "1.4.0"

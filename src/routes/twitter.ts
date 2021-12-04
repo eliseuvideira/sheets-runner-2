@@ -2,6 +2,7 @@ import { body, query } from "@ev-fns/validation";
 import { Router } from "express";
 import {
   twitterRows,
+  twitterRowsAsync,
   twitterRowsCounts,
   twitterRowsWriteRows,
 } from "../endpoints/twitter";
@@ -22,7 +23,7 @@ const router = Router();
  * @queryParam {date-time} start_date
  * @queryParam {date-time} end_date
  * @response 200
- * @responseContent {TwitterRowsResponse} 200.application/json
+ * @responseContent {RowsResponse} 200.application/json
  * @response default
  * @responseContent {Error} default.application/json
  */
@@ -53,7 +54,7 @@ router.post(
  * @security BearerAuth
  * @bodyContent {TwitterWriteRowsBody} application/json
  * @response 200
- * @responseContent {TwitterRowsResponse} 200.application/json
+ * @responseContent {RowsResponse} 200.application/json
  * @response default
  * @responseContent {Error} default.application/json
  */
@@ -63,5 +64,19 @@ router.post(
   body(twitterRowsWriteRowsBody),
   twitterRowsWriteRows,
 );
+
+/**
+ * POST /async/twitter
+ * @tag Twitter
+ * @summary asynchronously fetches twitter mentions and write the rows into the google spreadsheet, a job returns immediatly and can be fetched for results later and runs every 60 seconds timeout until 10 attemps are made unsuccessfully
+ * @security BearerAuth
+ * @queryParam {date-time} start_date
+ * @queryParam {date-time} end_date
+ * @response 200
+ * @responseContent {Job} 200.application/json
+ * @response default
+ * @responseContent {Error} default.application/json
+ */
+router.post("/async/twitter", auth, query(twitterRowsQuery), twitterRowsAsync);
 
 export default router;

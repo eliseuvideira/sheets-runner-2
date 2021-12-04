@@ -103,9 +103,13 @@ components:
       required:
         - sequence
 
-    TwitterRowsResponse:
+    RowsResponse:
       type: object
       properties:
+        started_at:
+          type: string
+          format: date-time
+          example: "2021-12-04T18:43:49.694Z"
         successful:
           type: boolean
           example: true
@@ -205,3 +209,35 @@ components:
             example: 2
       required:
         - row_numbers
+
+    Job:
+      type: object
+      properties:
+        job_id:
+          type: string
+          example: xqhB8whVyFdYwKhtZzSZYEDNTpTWpknT
+        completed:
+          type: boolean
+          example: true
+        successful:
+          type: boolean
+          example: true
+        attempts:
+          type: number
+          example: 2
+        runs:
+          type: array
+          items:
+            $ref: "#/components/schemas/RowsResponse"
+          example: []
+        fatal_errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Error"
+      required:
+        - job_id
+        - completed
+        - successful
+        - attempts
+        - runs
+        - fatal_errors
