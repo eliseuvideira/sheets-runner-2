@@ -31,7 +31,7 @@ export const twitterRows = endpoint(async (req, res) => {
     endDate,
   });
 
-  const rows: Row[] = [];
+  const writtenRows: Row[] = [];
 
   try {
     for (const tweet of tweets) {
@@ -86,17 +86,17 @@ export const twitterRows = endpoint(async (req, res) => {
           row,
         );
 
-        rows.push(row);
+        writtenRows.push(row);
       });
     }
   } catch (err: any) {
-    if (rows.length) {
+    if (writtenRows.length) {
       console.error(err);
 
       res.status(200).json({
         successful: false,
         error: { message: err.message },
-        items: rows,
+        items: writtenRows,
       });
 
       return;
@@ -104,24 +104,30 @@ export const twitterRows = endpoint(async (req, res) => {
     throw err;
   }
 
-  res.status(200).json({ successful: true, items: rows });
+  res.status(200).json({ successful: true, items: writtenRows });
 });
 
 export const twitterRowsCounts = endpoint(async (req, res) => {
-  const missingCountRows: Row[] = await database
+  const { row_numbers } = req.body as { row_numbers: number[] };
+
+  const rows: Row[] = await database
     .from("spreadsheet_rows")
     .where({ plataform: "twitter" })
     .where((builder) => {
-      builder.orWhereNull("likes");
-      builder.orWhereNull("retweets");
-      builder.orWhereNull("replies");
+      if (row_numbers && row_numbers.length) {
+        builder.whereIn("row_number", row_numbers);
+      } else {
+        builder.orWhereNull("likes");
+        builder.orWhereNull("retweets");
+        builder.orWhereNull("replies");
+      }
     })
     .orderBy("row_number", "asc");
 
-  const rows: TwitterCount[] = [];
+  const writtenRows: TwitterCount[] = [];
 
   const tweets = await twitterCountFetchMany(
-    missingCountRows.map((missingCount) => ({
+    rows.map((missingCount) => ({
       _id: "row-number-" + missingCount.row_number,
       tweet_id: missingCount.tweet_id,
       username: missingCount.tweet_author_username,
@@ -131,8 +137,8 @@ export const twitterRowsCounts = endpoint(async (req, res) => {
   const tweetsMap = new Map(tweets.map((tweet) => [tweet._id, tweet]));
 
   try {
-    for (const missingCount of missingCountRows) {
-      const counts = tweetsMap.get("row-number-" + missingCount.row_number);
+    for (const row of rows) {
+      const counts = tweetsMap.get("row-number-" + row.row_number);
 
       if (!counts) {
         continue;
@@ -150,31 +156,31 @@ export const twitterRowsCounts = endpoint(async (req, res) => {
       await database.transaction(async (database) => {
         await database
           .from("spreadsheet_rows")
-          .where({ row_number: missingCount.row_number })
+          .where({ row_number: row.row_number })
           .update({ ...values });
 
         await sheetsWriteCount(
           sheets,
           process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
-          missingCount.row_number,
+          row.row_number,
           counts,
         );
       });
 
-      rows.push({
-        row_number: missingCount.row_number,
-        tweet_id: missingCount.tweet_id,
+      writtenRows.push({
+        row_number: row.row_number,
+        tweet_id: row.tweet_id,
         ...values,
       });
     }
   } catch (err: any) {
-    if (rows.length) {
+    if (writtenRows.length) {
       console.error(err);
 
       res.status(200).json({
         successful: false,
         error: { message: err.message },
-        items: rows,
+        items: writtenRows,
       });
 
       return;
@@ -182,5 +188,43 @@ export const twitterRowsCounts = endpoint(async (req, res) => {
     throw err;
   }
 
-  res.status(200).json({ successful: true, items: rows });
+  res.status(200).json({ successful: true, items: writtenRows });
+});
+
+export const twitterRowsWriteRows = endpoint(async (req, res) => {
+  const { row_numbers } = req.body as { row_numbers: number[] };
+
+  const rows: Row[] = await database
+    .from("spreadsheet_rows")
+    .whereIn("row_number", row_numbers);
+
+  const writtenRows: Row[] = [];
+
+  try {
+    for (const row of rows) {
+      await sheetsWriteRow(
+        sheets,
+        process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+        row,
+      );
+
+      writtenRows.push(row);
+    }
+  } catch (err: any) {
+    if (writtenRows.length) {
+      console.error(err);
+
+      res.status(200).json({
+        successful: false,
+        error: { message: err.message },
+        items: writtenRows,
+      });
+
+      return;
+    }
+
+    throw err;
+  }
+
+  res.status(200).json({ successful: true, items: writtenRows });
 });

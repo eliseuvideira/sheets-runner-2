@@ -183,3 +183,25 @@ components:
       required:
         - successful
         - items
+
+    TwitterRowsCountBody:
+      type: object
+      properties:
+        row_numbers:
+          type: array
+          items:
+            type: integer
+            example: 2
+      required:
+        - row_numbers
+
+    TwitterWriteRowsBody:
+      type: object
+      properties:
+        row_numbers:
+          type: array
+          items:
+            type: integer
+            example: 2
+      required:
+        - row_numbers
