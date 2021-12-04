@@ -18,6 +18,10 @@ declare namespace NodeJS {
     TWITTER_USERNAME: string;
     TWITTER_BEARER_TOKEN: string;
 
+    // Twitter Count
+    TWITTER_COUNT_API_URL: string;
+    TWITTER_COUNT_API_TOKEN: string;
+
     // Locale
     LANG: string;
   }

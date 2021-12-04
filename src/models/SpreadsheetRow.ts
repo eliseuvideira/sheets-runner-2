@@ -7,7 +7,7 @@ export interface SpreadsheetRow {
   issues_details_notes: string;
   likes: number | null;
   retweets: number | null;
-  mentions: number | null;
+  replies: number | null;
   user: string;
   tweet_id: string;
   tweet_content: string;
@@ -17,5 +17,6 @@ export interface SpreadsheetRow {
   tweet_author_name: string;
   tweet_likes: number | null;
   tweet_retweets: number | null;
+  tweet_replies: number | null;
   created_at: Date;
 }

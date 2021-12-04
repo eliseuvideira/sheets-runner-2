@@ -109,10 +109,6 @@ components:
         successful:
           type: boolean
           example: true
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/SpreadsheetRow"
         error:
           type: object
           properties:
@@ -121,6 +117,10 @@ components:
               example: "429 - Too Many Requests"
           required:
             - message
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpreadsheetRow"
       required:
         - successful
         - items
@@ -152,10 +152,6 @@ components:
         successful:
           type: boolean
           example: true
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/TwitterLike"
         error:
           type: object
           properties:
@@ -164,6 +160,10 @@ components:
               example: "429 - Too Many Requests"
           required:
             - message
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TwitterLike"
       required:
         - successful
         - items
@@ -195,10 +195,6 @@ components:
         successful:
           type: boolean
           example: true
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/TwitterRetweet"
         error:
           type: object
           properties:
@@ -207,6 +203,69 @@ components:
               example: "429 - Too Many Requests"
           required:
             - message
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TwitterRetweet"
+      required:
+        - successful
+        - items
+
+    TwitterCount:
+      type: object
+      properties:
+        row_number:
+          type: integer
+          example: 2
+        likes:
+          type: integer
+          example: 5
+        retweets:
+          type: integer
+          example: 23
+        replies:
+          type: integer
+          example: 1
+        tweet_id:
+          type: string
+          example: "1463053563953885186"
+        tweet_likes:
+          type: integer
+          example: 5
+        tweet_retweets:
+          type: integer
+          example: 23
+        tweet_replies:
+          type: integer
+          example: 1
+      required:
+        - row_number
+        - likes
+        - retweets
+        - replies
+        - tweet_id
+        - tweet_likes
+        - tweet_retweets
+        - tweet_replies
+
+    TwitterCountResponse:
+      type: object
+      properties:
+        successful:
+          type: boolean
+          example: true
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "429 - Too Many Requests"
+          required:
+            - message
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TwitterCount"
       required:
         - successful
         - items

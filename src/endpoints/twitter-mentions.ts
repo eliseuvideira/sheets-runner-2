@@ -50,7 +50,7 @@ export const twitterMentions = endpoint(async (req, res) => {
           issues_details_notes: tweet.text,
           likes: null,
           retweets: null,
-          mentions: null,
+          replies: null,
           user: `${tweet.author_name} (@${tweet.author_username})`,
           tweet_id: tweet.id,
           tweet_content: tweet.text,
@@ -60,6 +60,7 @@ export const twitterMentions = endpoint(async (req, res) => {
           tweet_author_name: tweet.author_name,
           tweet_likes: null,
           tweet_retweets: null,
+          tweet_replies: null,
           created_at: new Date(),
         };
 

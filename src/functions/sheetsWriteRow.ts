@@ -20,7 +20,7 @@ export const sheetsWriteRow = async (
     range: `E${row.row_number}:H${row.row_number}`,
     valueInputOption: "USER_ENTERED",
     requestBody: {
-      values: [[row.issues_details, row.likes, row.retweets, row.mentions]],
+      values: [[row.issues_details, row.likes, row.retweets, row.replies]],
     },
   });
 
