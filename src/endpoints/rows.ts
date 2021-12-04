@@ -8,7 +8,7 @@ export const rowsGetMany = endpoint(async (req, res) => {
   res.status(200).json(rows);
 });
 
-export const rowsNextRowNumberGetOne = endpoint(async (req, res) => {
+export const rowsCurrentRowNumberGetOne = endpoint(async (req, res) => {
   const sequence = await database.from("spreadsheet_rows_sequence").first();
 
   if (!sequence) {

@@ -3,7 +3,7 @@ import { Router } from "express";
 import {
   rowsGetMany,
   rowsGetOne,
-  rowsNextRowNumberGetOne,
+  rowsCurrentRowNumberGetOne,
 } from "../endpoints/rows";
 import { auth } from "../middlewares/auth";
 import { rowsGetOneParams } from "../validations/rows";
@@ -23,16 +23,16 @@ const router = Router();
 router.get("/rows", auth, rowsGetMany);
 
 /**
- * GET /rows/next-row-number
+ * GET /rows/current-row-number
  * @tag Rows
- * @summary returns the next row number that will be written into google spreadsheet
+ * @summary returns the row number of the last written line of google spreadsheet
  * @security BearerAuth
  * @response 200
  * @responseContent {RowSequence} 200.application/json
  * @response default
  * @responseContent {Error} default.application/json
  */
-router.get("/rows/next-row-number", auth, rowsNextRowNumberGetOne);
+router.get("/rows/current-row-number", auth, rowsCurrentRowNumberGetOne);
 
 /**
  * GET /rows/{row_number}
