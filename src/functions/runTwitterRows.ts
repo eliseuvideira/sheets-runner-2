@@ -79,6 +79,7 @@ export const runTwitterRows = async (tweets: Tweet[]): Promise<Run> => {
         items: writtenRows,
       };
     }
+
     throw err;
   }
 

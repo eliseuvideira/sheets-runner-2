@@ -1,13 +1,16 @@
 import { endpoint } from "@ev-fns/endpoint";
+import { appendJobs } from "../functions/appendJobs";
 import { nanoid } from "../functions/nanoid";
+import { runJob } from "../functions/runJob";
+import { runTwitterRowsCounts } from "../functions/runTwitterRowCounts";
 import { runTwitterRows } from "../functions/runTwitterRows";
+import { runTwitterRowsWriteRows } from "../functions/runTwitterRowsWriteRows";
 import { sheetsWriteCount } from "../functions/sheetsWriteCount";
 import { sheetsWriteRow } from "../functions/sheetsWriteRow";
 import { twitterCountFetchMany } from "../functions/twitterCountFetchMany";
 import { twitterGetMentions } from "../functions/twitterGetMentions";
 import { Job } from "../models/Job";
 import { Row } from "../models/Row";
-import { Run } from "../models/Run";
 import { TwitterCounts } from "../models/TwitterCounts";
 import { database } from "../utils/database";
 import { jobs } from "../utils/jobs";
@@ -171,55 +174,121 @@ export const twitterRowsAsync = endpoint(async (req, res) => {
     fatal_errors: [],
   };
 
-  jobs.push(job);
-
-  // remove job after 2 hours
-  setTimeout(() => {
-    const index = jobs.findIndex((j) => j === job);
-
-    if (index !== -1) {
-      jobs.splice(index, 1);
-    }
-  }, 2 * 60 * 60 * 1000);
+  appendJobs(jobs, job);
 
   res.status(200).json(job);
 
-  while (job.attempts < 10) {
-    let run: Run;
+  let pendingTweets = [...tweets];
 
-    try {
-      run = await runTwitterRows(tweets);
-    } catch (err: any) {
-      job.fatal_errors.push({ message: err.messsage });
+  await runJob(job, async () => {
+    const run = await runTwitterRows(pendingTweets);
 
-      if (job.fatal_errors.length > 10) {
-        job.completed = true;
-        throw err;
+    if (run.items) {
+      const tweet_ids = run.items.map((item) => item.tweet_id);
+
+      pendingTweets = pendingTweets.filter(
+        (tweet) => !tweet_ids.includes(tweet.id),
+      );
+    }
+
+    return run;
+  });
+});
+
+export const twitterRowsCountsAsync = endpoint(async (req, res) => {
+  const { row_numbers } = req.body as { row_numbers: number[] };
+
+  const rows: Row[] = await database
+    .from("spreadsheet_rows")
+    .where({ plataform: "twitter" })
+    .where((builder) => {
+      if (row_numbers && row_numbers.length) {
+        builder.whereIn("row_number", row_numbers);
+      } else {
+        builder.orWhereNull("likes");
+        builder.orWhereNull("retweets");
+        builder.orWhereNull("replies");
       }
+    })
+    .orderBy("row_number", "asc");
 
-      continue;
+  const tweets = await twitterCountFetchMany(
+    rows.map((row) => ({
+      _id: "row-number-" + row.row_number,
+      tweet_id: row.tweet_id,
+      username: row.tweet_author_username,
+    })),
+  );
+
+  const job_id = nanoid();
+
+  const job: Job = {
+    job_id,
+    route: "/async/twitter/counts",
+    completed: false,
+    successful: false,
+    attempts: 0,
+    runs: [],
+    fatal_errors: [],
+  };
+
+  appendJobs(jobs, job);
+
+  res.status(200).json(job);
+
+  let pendingRows = [...rows];
+
+  await runJob(job, async () => {
+    const run = await runTwitterRowsCounts(tweets, pendingRows);
+
+    if (run.items) {
+      const row_numbers = run.items.map((item) => item.row_number);
+
+      pendingRows = pendingRows.filter(
+        (row) => !row_numbers.includes(row.row_number),
+      );
     }
 
-    job.runs.push(run);
+    return run;
+  });
+});
 
-    if (run.successful) {
-      console.info(`job ${job_id}: completed successfully`);
+export const twitterRowsWriteRowsAsync = endpoint(async (req, res) => {
+  const { row_numbers } = req.body as { row_numbers: number[] };
 
-      job.completed = true;
-      job.successful = true;
-      job.attempts += 1;
+  const rows: Row[] = await database
+    .from("spreadsheet_rows")
+    .whereIn("row_number", row_numbers);
 
-      break;
+  const job_id = nanoid();
+
+  const job: Job = {
+    job_id,
+    route: "/async/twitter/write-rows",
+    completed: false,
+    successful: false,
+    attempts: 0,
+    runs: [],
+    fatal_errors: [],
+  };
+
+  appendJobs(jobs, job);
+
+  res.status(200).json(job);
+
+  let pendingRows = [...rows];
+
+  await runJob(job, async () => {
+    const run = await runTwitterRowsWriteRows(pendingRows);
+
+    if (run.items) {
+      const row_numbers = run.items.map((item) => item.row_number);
+
+      pendingRows = pendingRows.filter(
+        (row) => !row_numbers.includes(row.row_number),
+      );
     }
-    console.info(`job ${job_id}: failed`);
-    console.info(`job ${job_id}: waiting`);
 
-    await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
-
-    console.info(`job ${job_id}: resuming`);
-
-    job.attempts += 1;
-  }
-
-  job.completed = true;
+    return run;
+  });
 });

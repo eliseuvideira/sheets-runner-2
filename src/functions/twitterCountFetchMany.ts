@@ -18,6 +18,10 @@ export interface TwitterCountFetchManyTweetCounted {
 export const twitterCountFetchMany = async (
   tweets: TwitterCountFetchManyTweet[],
 ) => {
+  if (!tweets.length) {
+    return [];
+  }
+
   const url = new URL(process.env.TWITTER_COUNT_API_URL);
 
   url.pathname = "/tweets";

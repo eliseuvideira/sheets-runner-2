@@ -9,9 +9,7 @@ export const twitterRowsQuery = Joi.object()
 
 export const twitterRowsCountsBody = Joi.object()
   .keys({
-    row_numbers: Joi.array()
-      .items(Joi.number().integer().required())
-      .required(),
+    row_numbers: Joi.array().items(Joi.number().integer()),
   })
   .required();
 
