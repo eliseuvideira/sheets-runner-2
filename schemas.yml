@@ -103,7 +103,7 @@ components:
       required:
         - sequence
 
-    TwitterMentionResponse:
+    TwitterRowsResponse:
       type: object
       properties:
         successful:
