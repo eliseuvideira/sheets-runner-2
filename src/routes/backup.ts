@@ -5,12 +5,12 @@ import { auth } from "../middlewares/auth";
 const router = Router();
 
 /**
- * -POST /backup
- * -@tag Backup
- * -@security BearerAuth
- * -@response 200
- * -@response default
- * -@responseContent {Error} default.application/json
+ * POST /backup
+ * @tag Backup
+ * @security BearerAuth
+ * @response 200
+ * @response default
+ * @responseContent {Error} default.application/json
  */
 router.post("/backup", auth, backup);
 

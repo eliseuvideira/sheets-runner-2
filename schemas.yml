@@ -14,7 +14,7 @@ components:
       required:
         - message
 
-    SpreadsheetRow:
+    Row:
       type: object
       properties:
         row_number:
@@ -94,7 +94,7 @@ components:
         - tweet_author_name
         - created_at
 
-    SpreadsheetRowSequence:
+    RowSequence:
       type: object
       properties:
         sequence:
@@ -120,7 +120,7 @@ components:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/SpreadsheetRow"
+            $ref: "#/components/schemas/Row"
       required:
         - successful
         - items

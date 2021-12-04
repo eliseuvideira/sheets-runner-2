@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export const spreadsheetRowsGetOneParams = Joi.object()
+export const rowsGetOneParams = Joi.object()
   .keys({
     row_number: Joi.number().integer().required(),
   })

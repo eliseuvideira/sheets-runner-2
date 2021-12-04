@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { getNextRowNumber } from "../functions/getNextRowNumber";
 import { sheetsWriteRow } from "../functions/sheetsWriteRow";
 import { twitterGetMentions } from "../functions/twitterGetMentions";
-import { SpreadsheetRow } from "../models/SpreadsheetRow";
+import { Row } from "../models/Row";
 import { database } from "../utils/database";
 import { sheets } from "../utils/sheets";
 import { twitterUser } from "../utils/twitterUser";
@@ -17,7 +17,7 @@ export const twitterMentions = endpoint(async (req, res) => {
     endDate,
   });
 
-  const rows: SpreadsheetRow[] = [];
+  const rows: Row[] = [];
 
   try {
     for (const tweet of tweets) {
@@ -41,7 +41,7 @@ export const twitterMentions = endpoint(async (req, res) => {
           `inserting tweet_id ${tweet.id} at row_number ${row_number}`,
         );
 
-        const row: SpreadsheetRow = {
+        const row: Row = {
           row_number,
           event_date: format(new Date(tweet.created_at), "M/dd"),
           link_url: `https://twitter.com/${tweet.author_username}/status/${tweet.id}`,

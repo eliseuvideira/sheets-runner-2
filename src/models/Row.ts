@@ -1,4 +1,4 @@
-export interface SpreadsheetRow {
+export interface Row {
   row_number: number;
   event_date: string;
   link_url: string;

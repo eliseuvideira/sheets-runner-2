@@ -1,10 +1,10 @@
 import { sheets_v4 } from "googleapis";
-import { SpreadsheetRow } from "../models/SpreadsheetRow";
+import { Row } from "../models/Row";
 
 export const sheetsWriteRow = async (
   sheets: sheets_v4.Sheets,
   spreadsheetId: string,
-  row: SpreadsheetRow,
+  row: Row,
 ) => {
   await sheets.spreadsheets.values.update({
     spreadsheetId,

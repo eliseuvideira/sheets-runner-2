@@ -1,12 +1,12 @@
 import { endpoint } from "@ev-fns/endpoint";
 import { sheetsWriteCount } from "../functions/sheetsWriteCount";
 import { twitterCountFetchMany } from "../functions/twitterCountFetchMany";
-import { SpreadsheetRow } from "../models/SpreadsheetRow";
+import { Row } from "../models/Row";
 import { database } from "../utils/database";
 import { sheets } from "../utils/sheets";
 
 export type TwitterCount = Pick<
-  SpreadsheetRow,
+  Row,
   | "row_number"
   | "tweet_id"
   | "likes"
@@ -18,7 +18,7 @@ export type TwitterCount = Pick<
 >;
 
 export const twitterCount = endpoint(async (req, res) => {
-  const missingCountRows: SpreadsheetRow[] = await database
+  const missingCountRows: Row[] = await database
     .from("spreadsheet_rows")
     .where({ plataform: "twitter" })
     .where((builder) => {

@@ -2,13 +2,13 @@ import { endpoint } from "@ev-fns/endpoint";
 import { HttpError } from "@ev-fns/errors";
 import { database } from "../utils/database";
 
-export const spreadsheetRowsGetMany = endpoint(async (req, res) => {
+export const rowsGetMany = endpoint(async (req, res) => {
   const rows = await database.from("spreadsheet_rows");
 
   res.status(200).json(rows);
 });
 
-export const spreadsheetRowsSequenceGetOne = endpoint(async (req, res) => {
+export const rowsNextRowNumberGetOne = endpoint(async (req, res) => {
   const sequence = await database.from("spreadsheet_rows_sequence").first();
 
   if (!sequence) {
@@ -18,7 +18,7 @@ export const spreadsheetRowsSequenceGetOne = endpoint(async (req, res) => {
   res.status(200).json({ sequence: sequence.sequence });
 });
 
-export const spreadsheetRowsGetOne = endpoint(async (req, res) => {
+export const rowsGetOne = endpoint(async (req, res) => {
   const { row_number } = req.params as unknown as Record<string, number>;
 
   const row = await database
