@@ -4,9 +4,9 @@ import {
   rowsGetMany,
   rowsGetOne,
   rowsNextRowNumberGetOne,
-} from "../endpoints/spreadsheet-rows";
+} from "../endpoints/rows";
 import { auth } from "../middlewares/auth";
-import { rowsGetOneParams } from "../validations/spreadsheet-rows";
+import { rowsGetOneParams } from "../validations/rows";
 
 const router = Router();
 
